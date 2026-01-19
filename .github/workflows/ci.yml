@@ -85,7 +85,7 @@ jobs:
       
       - name: Run integration tests with coverage
         run: |
-          mpiexec --oversubscribe -n 4 pytest --with-mpi tests/test_integration.py -v --cov=ezmpi --cov-report=xml
+          mpiexec --oversubscribe -n 4 pytest --with-mpi tests/test_integration.py -v --cov=ezmpi
           coverage combine
           coverage xml
       
