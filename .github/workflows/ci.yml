@@ -84,7 +84,7 @@ jobs:
           pip install -e ".[test,dill]"
       
       - name: Run integration tests
-        run: mpiexec -n 4 pytest tests/test_integration.py -v --cov=ezmpi --cov-report=xml --cov-append
+        run: mpiexec --oversubscribe -n 4 pytest tests/test_integration.py -v --cov=ezmpi --cov-report=xml --cov-append
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

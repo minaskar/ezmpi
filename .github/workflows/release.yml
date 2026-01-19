@@ -34,7 +34,7 @@ jobs:
       - name: Run full test suite
         run: |
           pytest tests/test_unit.py -v --cov=ezmpi
-          mpiexec -n 4 pytest tests/test_integration.py -v --cov=ezmpi --cov-append
+          mpiexec --oversubscribe -n 4 pytest tests/test_integration.py -v --cov=ezmpi --cov-append
           pytest tests/test_performance.py -v
       
       - name: Check package build
