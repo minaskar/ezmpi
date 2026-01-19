@@ -1,4 +1,4 @@
-# Read the Docs configuration file
+# Read the Docs configuration file for MkDocs
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html
 
 version: 2
@@ -7,22 +7,16 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
-  apt_packages:
-    - openmpi-bin
-    - libopenmpi-dev
 
-sphinx:
-  configuration: docs/conf.py
-  builder: html
+mkdocs:
+  configuration: mkdocs.yml
   fail_on_warning: false
 
 # Build all formats (HTML, PDF, ePub)
 formats:
   - htmlzip
   - pdf
-  - epub
 
-# Python requirements
 python:
   install:
     - method: pip
