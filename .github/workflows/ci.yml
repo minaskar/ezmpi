@@ -83,16 +83,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[test,dill]"
       
-      - name: Run integration tests with coverage
-        run: mpiexec --oversubscribe -n 4 pytest --with-mpi tests/test_integration.py -v --cov=ezmpi --cov-report=xml
+      - name: Run integration tests
+        run: mpiexec --oversubscribe -n 4 pytest --with-mpi tests/test_integration.py -v
       
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: integration
-          name: codecov-umbrella
-          fail_ci_if_error: false
+      # Note: Coverage disabled for integration tests due to pytest-cov + MPI race condition
+      # Unit tests provide sufficient coverage metrics
 
   docs-build:
     runs-on: ubuntu-latest
