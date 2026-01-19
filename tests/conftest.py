@@ -3,6 +3,10 @@
 import os
 import sys
 import pytest
+from unittest.mock import MagicMock, patch
+
+# Import our mock factory
+from .mpi_mocks import MockMPIEnvironment, clear_ezmpi_modules
 
 
 def pytest_configure(config):
@@ -15,7 +19,6 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "dill: Test requiring dill for complex object pickling"
     )
-    # Note: We're NOT registering 'mpi' marker to avoid conflicts with pytest-mpi
 
 
 def pytest_collection_modifyitems(config, items):
@@ -70,8 +73,11 @@ def pytest_collection_modifyitems(config, items):
 
         # Handle dill tests - skip only when dill specifically needed but not available
         if "dill" in item.keywords and not dill_available:
-            # Check if the test name suggests it's testing dill itself
-            if "import_dill" in item.name or "dill" in item.nodeid.lower():
+            # Skip tests that specifically test dill functionality
+            if (
+                "import_dill" in item.name
+                or "test_integration_complex_objects" in item.name
+            ):
                 item.add_marker(skip_no_dill)
 
 
@@ -103,26 +109,32 @@ def complex_worker():
 
 
 @pytest.fixture
-def mock_mpi_comm(mocker):
-    """Create a mock MPI communicator."""
-    mock_comm = mocker.MagicMock()
-    mock_comm.Get_rank.return_value = 0
-    mock_comm.Get_size.return_value = 4
-    mock_comm.COMM_WORLD = mock_comm
-    return mock_comm
+def mock_mpi_env():
+    """Provide a complete mock MPI environment for unit tests.
+
+    This fixture properly mocks mpi4py.MPI at the module level before
+    importing ezmpi, avoiding issues with mpi4py's read-only C attributes.
+    """
+    with MockMPIEnvironment(rank=0, size=4, use_dill=True) as env:
+        yield env
 
 
 @pytest.fixture
-def mock_mpi(mocker, mock_mpi_comm):
-    """Mock the entire MPI module."""
-    mock_mpi_module = mocker.MagicMock()
-    mock_mpi_module.COMM_WORLD = mock_mpi_comm
-    mock_mpi_module.Status.return_value = mocker.MagicMock()
-    mock_mpi_module.ANY_SOURCE = mock_mpi_comm.ANY_SOURCE
-    mock_mpi_module.ANY_TAG = mock_mpi_comm.ANY_TAG
+def mock_mpi_env_worker():
+    """Provide a mock MPI environment simulating a worker process (rank 1)."""
+    with MockMPIEnvironment(rank=1, size=4, use_dill=True) as env:
+        yield env
 
-    # Patch the mpi4py import
-    mocker.patch.dict("sys.modules", {"mpi4py": mocker.MagicMock()})
-    mocker.patch.dict("sys.modules", {"mpi4py.MPI": mock_mpi_module})
 
-    return mock_mpi_module
+@pytest.fixture
+def mock_mpi_env_single_process():
+    """Provide a mock MPI environment with only 1 process."""
+    with MockMPIEnvironment(rank=0, size=1, use_dill=True) as env:
+        yield env
+
+
+@pytest.fixture
+def mock_mpi_env_without_dill():
+    """Provide a mock MPI environment without dill."""
+    with MockMPIEnvironment(rank=0, size=4, use_dill=False) as env:
+        yield env
