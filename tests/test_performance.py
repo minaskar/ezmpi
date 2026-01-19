@@ -1,8 +1,9 @@
 """Performance smoke tests for EZMPI."""
 
-import pytest
 import time
 from typing import List
+
+import pytest
 
 
 def heavy_computation(x):
