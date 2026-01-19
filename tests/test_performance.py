@@ -18,8 +18,9 @@ def test_performance_single_vs_parallel():
     """Basic smoke test: verify parallel execution provides speedup."""
     from ezmpi import MPIPool
 
-    if MPIPool(test_mode=True).comm.Get_size() > 1:
-        with MPIPool(test_mode=True) as pool:
+    pool = MPIPool(test_mode=True)
+    if pool.comm.Get_size() > 1:
+        with pool as pool:  # Reuse the same pool instance
             if pool.is_master():
                 tasks = [50, 75, 100, 125, 150]
 
@@ -45,8 +46,9 @@ def test_performance_task_scaling():
     """Test performance with varying number of tasks."""
     from ezmpi import MPIPool
 
-    if MPIPool(test_mode=True).comm.Get_size() > 1:
-        with MPIPool(test_mode=True) as pool:
+    pool = MPIPool(test_mode=True)
+    if pool.comm.Get_size() > 1:
+        with pool as pool:  # Reuse the same pool instance
             if pool.is_master():
                 tasks = list(range(10, 50, 5))
 
@@ -64,8 +66,9 @@ def test_performance_communication_overhead():
     """Test overhead with lightweight communication."""
     from ezmpi import MPIPool
 
-    if MPIPool(test_mode=True).comm.Get_size() > 1:
-        with MPIPool(test_mode=True) as pool:
+    pool = MPIPool(test_mode=True)
+    if pool.comm.Get_size() > 1:
+        with pool as pool:  # Reuse the same pool instance
             if pool.is_master():
                 tasks = list(range(50))
 
@@ -91,8 +94,9 @@ def test_performance_large_data_transfer():
     """Test performance with larger data returns."""
     from ezmpi import MPIPool
 
-    if MPIPool(test_mode=True).comm.Get_size() > 1:
-        with MPIPool(test_mode=True) as pool:
+    pool = MPIPool(test_mode=True)
+    if pool.comm.Get_size() > 1:
+        with pool as pool:  # Reuse the same pool instance
             if pool.is_master():
 
                 def generate_data(size):
