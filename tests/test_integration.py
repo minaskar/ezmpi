@@ -1,7 +1,5 @@
 """Integration tests for EZMPI with real MPI execution."""
 
-import sys
-
 import pytest
 
 pytestmark = pytest.mark.integration
@@ -30,7 +28,6 @@ def complex_computation(x):
 )
 def test_integration_basic_map():
     """Test basic parallel mapping with real MPI."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -51,7 +48,6 @@ def test_integration_basic_map():
 )
 def test_integration_multiple_workers():
     """Test with multiple workers."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -76,7 +72,6 @@ def test_integration_multiple_workers():
 )
 def test_integration_result_ordering():
     """Test that results maintain correct order."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -86,7 +81,7 @@ def test_integration_result_ordering():
         tasks = [5, 3, 8, 1, 9, 2, 7, 4, 6]
         results = pool.map(square, tasks)
         assert results == [x * x for x in tasks]
-        print(f"✓ test_integration_result_ordering passed")
+        print("✓ test_integration_result_ordering passed")
 
 
 @pytest.mark.mpi(min_size=2)
@@ -97,7 +92,6 @@ def test_integration_result_ordering():
 )
 def test_integration_empty_tasks():
     """Test map with empty task list."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -117,7 +111,6 @@ def test_integration_empty_tasks():
 )
 def test_integration_single_task():
     """Test with single task."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -138,7 +131,6 @@ def test_integration_single_task():
 )
 def test_integration_many_tasks():
     """Test with more tasks than workers."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -159,7 +151,6 @@ def test_integration_many_tasks():
 )
 def test_integration_cpu_bound_tasks():
     """Test with CPU-bound computations."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -169,7 +160,7 @@ def test_integration_cpu_bound_tasks():
         tasks = [100, 200, 300, 400, 500]
         results = pool.map(complex_computation, tasks)
         assert results == [complex_computation(x) for x in tasks]
-        print(f"✓ test_integration_cpu_bound_tasks passed")
+        print("✓ test_integration_cpu_bound_tasks passed")
 
 
 @pytest.mark.mpi(min_size=2)
@@ -180,7 +171,6 @@ def test_integration_cpu_bound_tasks():
 )
 def test_integration_context_manager():
     """Test context manager usage."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -205,7 +195,6 @@ def test_integration_context_manager():
 )
 def test_integration_process_roles():
     """Test that master/worker roles are correctly assigned."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -228,7 +217,6 @@ def test_integration_process_roles():
 )
 def test_integration_different_task_sizes():
     """Test with varying task sizes."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 
@@ -238,7 +226,7 @@ def test_integration_different_task_sizes():
         tasks = [2, 500, 3, 1000, 1, 750, 4, 250]
         results = pool.map(complex_computation, tasks)
         assert results == [complex_computation(x) for x in tasks]
-        print(f"✓ test_integration_different_task_sizes passed")
+        print("✓ test_integration_different_task_sizes passed")
 
 
 @pytest.mark.dill
@@ -250,7 +238,6 @@ def test_integration_different_task_sizes():
 )
 def test_integration_complex_objects():
     """Test with complex objects."""
-    from mpi4py import MPI
 
     from ezmpi import MPIPool
 

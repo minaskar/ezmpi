@@ -42,7 +42,7 @@ class TestImportFunctionality:
         if "dill" in sys.modules:
             pytest.skip("Cannot test dill missing when dill is installed")
 
-        with MockMPIEnvironment(rank=0, size=4, use_dill=False) as env:
+        with MockMPIEnvironment(rank=0, size=4, use_dill=False) as env:  # noqa: F841
             from ezmpi.parallel import _import_mpi
 
             # Try to use dill when it's not in modules
@@ -68,7 +68,7 @@ class TestMPIPoolInitialization:
 
     def test_pool_init_single_process_error(self):
         """Test error when only one process is available."""
-        with MockMPIEnvironment(rank=0, size=1, use_dill=False) as env:
+        with MockMPIEnvironment(rank=0, size=1, use_dill=False) as env:  # noqa: F841
             from ezmpi import MPIPool
 
             with pytest.raises(ValueError, match="only one MPI process"):
@@ -108,12 +108,12 @@ class TestWorkerBehavior:
     """Test worker process behavior."""
 
     def test_worker_process_exits(self):
-        """Test that worker process calls wait() and exits."""
+        """Test that worker process exits when no tasks."""
         with MockMPIEnvironment(rank=1, size=4, use_dill=False) as env:
             # Configure recv to return None (no tasks = terminate)
             env["mpi"].COMM_WORLD.recv = MagicMock(return_value=None)
 
-            pool = env["pool_class"](use_dill=False)
+            pool = env["pool_class"](use_dill=False)  # noqa: F841
 
             # Worker should have called sys.exit(0)
             env["exit"].assert_called_once_with(0)
@@ -122,20 +122,18 @@ class TestWorkerBehavior:
         """Test worker processes a task correctly."""
         with MockMPIEnvironment(rank=1, size=4, use_dill=False) as env:
             # Configure recv to return one task then None
-            recv_calls = []
+            call_count = 0
 
-            def mock_recv(**kwargs):
-                recv_calls.append(1)
-                if len(recv_calls) == 1:
-                    # First call: return task
-                    return (lambda x: x * 2, 5)
-                else:
-                    # Second call: return None (terminate)
-                    return None
+            def mock_recv(*args, **kwargs):
+                nonlocal call_count
+                call_count += 1
+                if call_count == 1:
+                    return (square, [5])  # Task
+                return None  # Terminate
 
             env["mpi"].COMM_WORLD.recv = MagicMock(side_effect=mock_recv)
 
-            pool = env["pool_class"](use_dill=False)
+            pool = env["pool_class"](use_dill=False)  # noqa: F841
 
             # Worker should have called sys.exit(0)
             env["exit"].assert_called_once_with(0)
@@ -276,7 +274,7 @@ class TestImportIntegration:
 
     def test_import_ezmpi_package(self):
         """Test that the ezmpi package can be imported."""
-        with MockMPIEnvironment(rank=0, size=4, use_dill=True) as env:
+        with MockMPIEnvironment(rank=0, size=4, use_dill=True) as env:  # noqa: F841
             import ezmpi
 
             assert hasattr(ezmpi, "MPIPool")
