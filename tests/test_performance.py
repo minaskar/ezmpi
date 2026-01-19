@@ -18,8 +18,8 @@ def test_performance_single_vs_parallel():
     """Basic smoke test: verify parallel execution provides speedup."""
     from ezmpi import MPIPool
 
-    if MPIPool().comm.Get_size() > 1:
-        with MPIPool() as pool:
+    if MPIPool(test_mode=True).comm.Get_size() > 1:
+        with MPIPool(test_mode=True) as pool:
             if pool.is_master():
                 tasks = [50, 75, 100, 125, 150]
 
@@ -32,9 +32,9 @@ def test_performance_single_vs_parallel():
                 assert results == expected
 
                 # Should complete in reasonable time
-                assert (
-                    parallel_time < 5.0
-                ), f"Parallel execution too slow: {parallel_time:.2f}s"
+                assert parallel_time < 5.0, (
+                    f"Parallel execution too slow: {parallel_time:.2f}s"
+                )
                 print(
                     f"Performance: {len(tasks)} tasks completed in {parallel_time:.2f}s"
                 )
@@ -45,8 +45,8 @@ def test_performance_task_scaling():
     """Test performance with varying number of tasks."""
     from ezmpi import MPIPool
 
-    if MPIPool().comm.Get_size() > 1:
-        with MPIPool() as pool:
+    if MPIPool(test_mode=True).comm.Get_size() > 1:
+        with MPIPool(test_mode=True) as pool:
             if pool.is_master():
                 tasks = list(range(10, 50, 5))
 
@@ -64,8 +64,8 @@ def test_performance_communication_overhead():
     """Test overhead with lightweight communication."""
     from ezmpi import MPIPool
 
-    if MPIPool().comm.Get_size() > 1:
-        with MPIPool() as pool:
+    if MPIPool(test_mode=True).comm.Get_size() > 1:
+        with MPIPool(test_mode=True) as pool:
             if pool.is_master():
                 tasks = list(range(50))
 
@@ -80,9 +80,9 @@ def test_performance_communication_overhead():
                 assert results == [x * 2 for x in tasks]
 
                 # Should complete quickly
-                assert (
-                    duration < 2.0
-                ), f"Communication overhead too high: {duration:.2f}s"
+                assert duration < 2.0, (
+                    f"Communication overhead too high: {duration:.2f}s"
+                )
                 print(f"Performance: {len(tasks)} lightweight tasks in {duration:.2f}s")
 
 
@@ -91,8 +91,8 @@ def test_performance_large_data_transfer():
     """Test performance with larger data returns."""
     from ezmpi import MPIPool
 
-    if MPIPool().comm.Get_size() > 1:
-        with MPIPool() as pool:
+    if MPIPool(test_mode=True).comm.Get_size() > 1:
+        with MPIPool(test_mode=True) as pool:
             if pool.is_master():
 
                 def generate_data(size):
