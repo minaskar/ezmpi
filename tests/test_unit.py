@@ -131,7 +131,7 @@ class TestWorkerBehavior:
                 nonlocal call_count
                 call_count += 1
                 if call_count == 1:
-                    return (square, [5])  # Task
+                    return (square, 5)  # Task - passes single value, not list
                 return None  # Terminate
 
             env["mpi"].COMM_WORLD.recv = MagicMock(side_effect=mock_recv)
