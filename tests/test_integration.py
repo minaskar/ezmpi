@@ -23,16 +23,17 @@ def complex_computation(x):
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_basic_map():
     """Test basic parallel mapping with real MPI."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         tasks = [1, 2, 3, 4, 5]
         results = pool.map(square, tasks)
@@ -42,21 +43,22 @@ def test_integration_basic_map():
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_multiple_workers():
     """Test with multiple workers."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         assert pool.size >= 1, f"Expected at least 1 worker, got {pool.size}"
         assert len(pool.workers) == pool.size
         assert 0 not in pool.workers
-        
+
         tasks = list(range(10))
         results = pool.map(add_one, tasks)
         assert results == [i + 1 for i in tasks]
@@ -65,16 +67,17 @@ def test_integration_multiple_workers():
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_result_ordering():
     """Test that results maintain correct order."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         tasks = [5, 3, 8, 1, 9, 2, 7, 4, 6]
         results = pool.map(square, tasks)
@@ -84,16 +87,17 @@ def test_integration_result_ordering():
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_empty_tasks():
     """Test map with empty task list."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         results = pool.map(square, [])
         assert results == []
@@ -102,16 +106,17 @@ def test_integration_empty_tasks():
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_single_task():
     """Test with single task."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         tasks = [42]
         results = pool.map(square, tasks)
@@ -121,16 +126,17 @@ def test_integration_single_task():
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_many_tasks():
     """Test with more tasks than workers."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         tasks = list(range(20))
         results = pool.map(square, tasks)
@@ -140,16 +146,17 @@ def test_integration_many_tasks():
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_cpu_bound_tasks():
     """Test with CPU-bound computations."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         tasks = [100, 200, 300, 400, 500]
         results = pool.map(complex_computation, tasks)
@@ -159,20 +166,21 @@ def test_integration_cpu_bound_tasks():
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_context_manager():
     """Test context manager usage."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         assert pool.is_master()
         initial_workers = pool.workers.copy()
-        
+
         tasks = [1, 2, 3]
         results = pool.map(square, tasks)
         assert results == [1, 4, 9]
@@ -182,16 +190,17 @@ def test_integration_context_manager():
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_process_roles():
     """Test that master/worker roles are correctly assigned."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         assert pool.rank == 0
         assert pool.is_master()
@@ -203,16 +212,17 @@ def test_integration_process_roles():
 
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_different_task_sizes():
     """Test with varying task sizes."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         tasks = [2, 500, 3, 1000, 1, 750, 4, 250]
         results = pool.map(complex_computation, tasks)
@@ -223,16 +233,17 @@ def test_integration_different_task_sizes():
 @pytest.mark.dill
 @pytest.mark.mpi(min_size=2)
 @pytest.mark.skipif(
-    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI") or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
-    reason="Run with: mpiexec -n N pytest tests/test_integration.py"
+    not hasattr(__import__("mpi4py", fromlist=["MPI"]), "MPI")
+    or __import__("mpi4py").MPI.COMM_WORLD.Get_size() <= 1,
+    reason="Run with: mpiexec -n N pytest tests/test_integration.py",
 )
 def test_integration_complex_objects():
     """Test with complex objects."""
     from ezmpi import MPIPool
     from mpi4py import MPI
-    
-    pool = MPIPool()
-    
+
+    pool = MPIPool(test_mode=True)
+
     if pool.is_master():
         tasks = [1, 2, 3, 4, 5]
         results = pool.map(lambda x: x * 2, tasks)

@@ -41,30 +41,30 @@ MPI = None
 
 def _import_mpi(use_dill=False):
     """Import and configure MPI with optional dill support.
-    
+
     This function imports mpi4py.MPI and optionally configures it to use dill
     for pickling. It handles import errors gracefully with informative messages.
-    
+
     Parameters
     ----------
     use_dill : bool, optional
         If True, configure MPI to use dill for pickling. Default is False.
-    
+
     Returns
     -------
     module
         The imported and configured mpi4py.MPI module.
-    
+
     Raises
     ------
     ImportError
         If mpi4py is not installed, or if use_dill=True but dill is not installed.
-    
+
     Notes
     -----
     The function caches the MPI module after first import for performance.
     Subsequent calls return the cached module.
-    
+
     When use_dill=True, this configures mpi4py to use dill's enhanced pickling
     capabilities, which can serialize more complex Python objects including
     lambda functions, closures, and other objects that standard pickle cannot.
@@ -96,12 +96,12 @@ def _import_mpi(use_dill=False):
 
 class MPIPool:
     """A processing pool that distributes tasks using MPI.
-    
+
     This class implements a master-worker parallel processing pattern using
     MPI (Message Passing Interface). Tasks are distributed from the master
     process (rank 0) to worker processes (rank > 0), executed in parallel,
     and results are collected back at the master.
-    
+
     Parameters
     ----------
     comm : mpi4py.MPI.Comm, optional
@@ -111,7 +111,7 @@ class MPIPool:
         If True, use dill for pickling objects. This is useful for
         pickling functions and objects that are not picklable by the default
         pickle module. Default is True.
-    
+
     Attributes
     ----------
     comm : mpi4py.MPI.Comm
@@ -124,49 +124,51 @@ class MPIPool:
         Set of worker ranks (all ranks except master)
     size : int
         Number of worker processes
-    
+
     Notes
     -----
     The implementation follows a master-worker pattern:
-    
+
     - **Master process (rank 0)**: Distributes tasks to workers and collects
       results. This is the only process that should call :meth:`map`.
     - **Worker processes (rank > 0)**: Wait for tasks from the master,
       execute them, and return results. Workers automatically exit after
       the pool is closed.
-    
+
     Examples
     --------
     Basic usage with a simple function:
-    
+
     >>> from ezmpi import MPIPool
-    >>> 
+    >>>
     >>> def square(x):
     ...     return x * x
-    >>> 
+    >>>
     >>> with MPIPool() as pool:
     ...     results = pool.map(square, [1, 2, 3, 4, 5])
     ...     print(results)
     [1, 4, 9, 16, 25]
-    
+
     Using dill for complex objects:
-    
+
     >>> with MPIPool(use_dill=True) as pool:
     ...     results = pool.map(lambda x: x * 2, [1, 2, 3])
     ...     print(results)
     [2, 4, 6]
     """
 
-    def __init__(self, comm=None, use_dill=True):
+    def __init__(self, comm=None, use_dill=True, test_mode=False):
         """Initialize the MPI processing pool.
-        
+
         Parameters
         ----------
         comm : mpi4py.MPI.Comm, optional
             MPI communicator to use. If None, uses MPI.COMM_WORLD.
         use_dill : bool, optional
             If True, use dill for pickling. Default is True.
-        
+        test_mode : bool, optional
+            If True, workers skip sys.exit() call (for testing).
+
         Raises
         ------
         ValueError
@@ -186,7 +188,8 @@ class MPIPool:
         if not self.is_master():
             # workers branch here and wait for work
             self.wait()
-            sys.exit(0)
+            if not test_mode:
+                sys.exit(0)
 
         self.workers = set(range(self.comm.size))
         self.workers.discard(self.master)
@@ -201,19 +204,19 @@ class MPIPool:
 
     def wait(self):
         """Tell the workers to wait and listen for the master process.
-        
+
         This method is executed automatically by worker processes. Workers
         continuously listen for tasks from the master, execute them, and send
         back results. When they receive a None task, they exit.
-        
+
         This method should not be called manually by users.
-        
+
         Notes
         -----
         This method is called automatically in worker processes during
         initialization. It runs an infinite loop receiving tasks from the
         master process until it receives a termination signal (None).
-        
+
         The communication protocol works as follows:
         1. Worker receives a task: (function, argument) tuple
         2. Worker executes the function with the argument
@@ -238,11 +241,11 @@ class MPIPool:
 
     def map(self, worker, tasks):
         """Execute a worker function on each task in parallel.
-        
+
         This method distributes tasks to worker processes, collects results,
         and returns them in the same order as the input tasks. It should only
         be called from the master process (rank 0).
-        
+
         Parameters
         ----------
         worker : callable
@@ -252,47 +255,47 @@ class MPIPool:
         tasks : iterable
             An iterable of tasks to distribute to workers. Each task will be
             passed as the argument to the worker function.
-        
+
         Returns
         -------
         list
             A list of results in the same order as the input tasks. If a task
             fails, the corresponding result will be ``None``.
-        
+
         Raises
         ------
         ValueError
             If called from a worker process instead of the master.
-        
+
         See Also
         --------
         wait : Worker-side method that receives and processes tasks
-        
+
         Notes
         -----
         Task distribution is synchronous - the master waits for all results
         before returning. Workers process tasks in the order they are received.
-        
+
         The method handles task distribution load balancing automatically.
         If there are more tasks than workers, tasks are distributed round-robin.
-        
+
         Examples
         --------
         Process a list of numbers:
-        
+
         >>> def cube(x):
         ...     return x ** 3
-        >>> 
+        >>>
         >>> with MPIPool() as pool:
         ...     results = pool.map(cube, [1, 2, 3, 4, 5])
         ...     print(results)
         [1, 8, 27, 64, 125]
-        
+
         Process strings:
-        
+
         >>> def prefix(word):
         ...     return f"task: {word}"
-        >>> 
+        >>>
         >>> with MPIPool() as pool:
         ...     results = pool.map(prefix, ["a", "b", "c"])
         ...     print(results)
@@ -339,15 +342,15 @@ class MPIPool:
 
     def close(self):
         """Tell all the workers to quit.
-        
+
         Sends a termination signal (None) to all worker processes, causing them
         to exit their wait loops and terminate cleanly.
-        
+
         Notes
         -----
         This method is called automatically when the pool is used as a context
         manager (e.g., ``with MPIPool() as pool:``).
-        
+
         After calling close(), the pool should not be used again.
         """
         if self.is_worker():
@@ -358,7 +361,7 @@ class MPIPool:
 
     def is_master(self):
         """Check if the current process is the master (rank 0).
-        
+
         Returns
         -------
         bool
@@ -368,7 +371,7 @@ class MPIPool:
 
     def is_worker(self):
         """Check if the current process is a worker (rank > 0).
-        
+
         Returns
         -------
         bool
@@ -378,7 +381,7 @@ class MPIPool:
 
     def __enter__(self):
         """Enter the runtime context for the pool.
-        
+
         Returns
         -------
         MPIPool
@@ -388,7 +391,7 @@ class MPIPool:
 
     def __exit__(self, *args):
         """Exit the runtime context for the pool.
-        
+
         Automatically calls close() to clean up worker processes.
         """
         self.close()
