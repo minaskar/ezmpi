@@ -40,15 +40,10 @@ jobs:
           pip install -e ".[test,dill]"
       
       - name: Run tests with ${{ matrix.nodes }} nodes
-        run: mpiexec --oversubscribe -n ${{ matrix.nodes }} pytest --with-mpi tests/ -v --cov=ezmpi --cov-report=xml
+        run: mpiexec --oversubscribe -n ${{ matrix.nodes }} pytest --with-mpi tests/ -v
       
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          flags: mpi-${{ matrix.nodes }}
-          name: mpi-tests-py${{ matrix.python-version }}-n${{ matrix.nodes }}
-          fail_ci_if_error: false
+      # Note: Coverage disabled for MPI tests to avoid pytest-cov + MPI race conditions
+      # Coverage is collected in the main CI workflow
 
   performance-tests:
     runs-on: ubuntu-latest
