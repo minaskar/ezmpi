@@ -124,6 +124,9 @@ class TestWorkerBehavior:
             # Configure recv to return one task then None
             call_count = 0
 
+            def square(x):
+                return x * x
+
             def mock_recv(*args, **kwargs):
                 nonlocal call_count
                 call_count += 1
@@ -141,7 +144,7 @@ class TestWorkerBehavior:
             # Verify task was processed and result sent
             env["mpi"].COMM_WORLD.ssend.assert_called_once()
             call_args = env["mpi"].COMM_WORLD.ssend.call_args[0]
-            assert call_args[0] == 10  # Result: 5 * 2 = 10
+            assert call_args[0] == 25  # Result: 5 * 5 = 25
 
 
 class TestMapFunctionality:
