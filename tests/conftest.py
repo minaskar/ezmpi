@@ -23,33 +23,7 @@ def pytest_configure(config):
 
 def pytest_collection_modifyitems(config, items):
     """Modify test collection based on available features."""
-    # Check if we're running in an MPI environment
-    is_mpi_environment = (
-        "OMPI_COMM_WORLD_SIZE" in os.environ
-        or "PMI_SIZE" in os.environ
-        or "MPICH_COMM_WORLD_SIZE" in os.environ
-        or "SLURM_NTASKS" in os.environ
-    )
-
-    # Force enable MPI tests if we're actually in an MPI environment
-    actually_running_mpi = False
-    if is_mpi_environment:
-        try:
-            from ezmpi import MPIPool
-
-            actually_running_mpi = MPIPool().comm.Get_size() > 1
-        except:
-            actually_running_mpi = False
-
-    skip_no_mpi = pytest.mark.skip(reason="Run with: mpiexec -n 4 pytest tests/")
     skip_no_dill = pytest.mark.skip(reason="dill not available")
-
-    try:
-        import mpi4py
-
-        mpi_available = True
-    except ImportError:
-        mpi_available = False
 
     try:
         import dill
@@ -59,18 +33,6 @@ def pytest_collection_modifyitems(config, items):
         dill_available = False
 
     for item in items:
-        # Handle integration tests - enable them if we're actually running under MPI
-        has_integration_marker = "integration" in item.keywords
-
-        if has_integration_marker:
-            if actually_running_mpi:
-                # Remove any skip markers added by pytest-mpi
-                item.own_markers = [
-                    m for m in item.own_markers if "skip" not in m.name.lower()
-                ]
-            elif not mpi_available:
-                item.add_marker(skip_no_mpi)
-
         # Handle dill tests - skip only when dill specifically needed but not available
         if "dill" in item.keywords and not dill_available:
             # Skip tests that specifically test dill functionality

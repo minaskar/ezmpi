@@ -40,7 +40,7 @@ jobs:
           pip install -e ".[test,dill]"
       
       - name: Run tests with ${{ matrix.nodes }} nodes
-        run: mpiexec --oversubscribe -n ${{ matrix.nodes }} pytest tests/ -v --cov=ezmpi --cov-report=xml
+        run: mpiexec --oversubscribe -n ${{ matrix.nodes }} pytest --with-mpi tests/ -v --cov=ezmpi --cov-report=xml
       
       - name: Upload coverage
         uses: codecov/codecov-action@v3
@@ -72,7 +72,7 @@ jobs:
           pip install -e ".[test,dill]"
       
       - name: Run performance tests
-        run: mpiexec --oversubscribe -n 4 pytest tests/test_performance.py -v
+        run: mpiexec --oversubscribe -n 4 pytest --with-mpi tests/test_performance.py -v
       
       - name: Upload benchmark results
         uses: actions/upload-artifact@v3
