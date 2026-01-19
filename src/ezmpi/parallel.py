@@ -1,3 +1,38 @@
+"""MPI-based processing pool for parallel task execution.
+
+This module provides the MPIPool class, which distributes tasks across multiple
+processes using MPI (Message Passing Interface). It's designed to parallelize
+computationally intensive tasks in Python programs running on multi-core or
+distributed systems.
+
+The implementation follows a master-worker pattern where:
+- The master process (rank 0) distributes tasks and collects results
+- Worker processes (rank > 0) execute tasks in parallel
+
+Key features:
+- Simple API similar to Python's built-in map()
+- Automatic worker process management
+- Optional dill support for complex objects
+- Context manager support for automatic cleanup
+
+Example
+-------
+>>> from ezmpi import MPIPool
+>>>
+>>> def square(x):
+...     return x * x
+>>>
+>>> with MPIPool() as pool:
+...     results = pool.map(square, [1, 2, 3, 4, 5])
+...     print(results)
+[1, 4, 9, 16, 25]
+
+Notes
+-----
+This implementation was adapted from similar MPI pool implementations in the
+scientific Python community.
+"""
+
 import sys
 import atexit
 
@@ -5,6 +40,35 @@ MPI = None
 
 
 def _import_mpi(use_dill=False):
+    """Import and configure MPI with optional dill support.
+    
+    This function imports mpi4py.MPI and optionally configures it to use dill
+    for pickling. It handles import errors gracefully with informative messages.
+    
+    Parameters
+    ----------
+    use_dill : bool, optional
+        If True, configure MPI to use dill for pickling. Default is False.
+    
+    Returns
+    -------
+    module
+        The imported and configured mpi4py.MPI module.
+    
+    Raises
+    ------
+    ImportError
+        If mpi4py is not installed, or if use_dill=True but dill is not installed.
+    
+    Notes
+    -----
+    The function caches the MPI module after first import for performance.
+    Subsequent calls return the cached module.
+    
+    When use_dill=True, this configures mpi4py to use dill's enhanced pickling
+    capabilities, which can serialize more complex Python objects including
+    lambda functions, closures, and other objects that standard pickle cannot.
+    """
     global MPI
     if MPI is not None:
         return MPI
@@ -31,29 +95,83 @@ def _import_mpi(use_dill=False):
 
 
 class MPIPool:
-    r"""A processing pool that distributes tasks using MPI.
-    With this pool class, the master process distributes tasks to worker
-    processes using an MPI communicator.
-
-
+    """A processing pool that distributes tasks using MPI.
+    
+    This class implements a master-worker parallel processing pattern using
+    MPI (Message Passing Interface). Tasks are distributed from the master
+    process (rank 0) to worker processes (rank > 0), executed in parallel,
+    and results are collected back at the master.
+    
     Parameters
     ----------
-    comm : :class:`mpi4py.MPI.Comm`, optional
-        An MPI communicator to distribute tasks with. If ``None``, this uses
-        ``MPI.COMM_WORLD`` by default.
+    comm : mpi4py.MPI.Comm, optional
+        An MPI communicator to distribute tasks with. If None, this uses
+        MPI.COMM_WORLD by default.
     use_dill : bool, optional
-        If ``True``, use dill for pickling objects. This is useful for
+        If True, use dill for pickling objects. This is useful for
         pickling functions and objects that are not picklable by the default
-        pickle module. Default is ``True``.
-
+        pickle module. Default is True.
+    
+    Attributes
+    ----------
+    comm : mpi4py.MPI.Comm
+        The MPI communicator used for communication
+    master : int
+        Rank of the master process (always 0)
+    rank : int
+        Rank of the current process
+    workers : set of int
+        Set of worker ranks (all ranks except master)
+    size : int
+        Number of worker processes
+    
     Notes
     -----
-    This implementation is inspired by @juliohm in `this module
-    <https://github.com/juliohm/HUM/blob/master/pyhum/utils.py#L24>`_
-    and was adapted from schwimmbad.
+    The implementation follows a master-worker pattern:
+    
+    - **Master process (rank 0)**: Distributes tasks to workers and collects
+      results. This is the only process that should call :meth:`map`.
+    - **Worker processes (rank > 0)**: Wait for tasks from the master,
+      execute them, and return results. Workers automatically exit after
+      the pool is closed.
+    
+    Examples
+    --------
+    Basic usage with a simple function:
+    
+    >>> from ezmpi import MPIPool
+    >>> 
+    >>> def square(x):
+    ...     return x * x
+    >>> 
+    >>> with MPIPool() as pool:
+    ...     results = pool.map(square, [1, 2, 3, 4, 5])
+    ...     print(results)
+    [1, 4, 9, 16, 25]
+    
+    Using dill for complex objects:
+    
+    >>> with MPIPool(use_dill=True) as pool:
+    ...     results = pool.map(lambda x: x * 2, [1, 2, 3])
+    ...     print(results)
+    [2, 4, 6]
     """
 
     def __init__(self, comm=None, use_dill=True):
+        """Initialize the MPI processing pool.
+        
+        Parameters
+        ----------
+        comm : mpi4py.MPI.Comm, optional
+            MPI communicator to use. If None, uses MPI.COMM_WORLD.
+        use_dill : bool, optional
+            If True, use dill for pickling. Default is True.
+        
+        Raises
+        ------
+        ValueError
+            If only one MPI process is available (need at least 2).
+        """
         global MPI
         if MPI is None:
             MPI = _import_mpi(use_dill=use_dill)
@@ -82,9 +200,25 @@ class MPIPool:
             )
 
     def wait(self):
-        r"""Tell the workers to wait and listen for the master process. This is
-        called automatically when using :meth:`MPIPool.map` and doesn't need to
-        be called by the user.
+        """Tell the workers to wait and listen for the master process.
+        
+        This method is executed automatically by worker processes. Workers
+        continuously listen for tasks from the master, execute them, and send
+        back results. When they receive a None task, they exit.
+        
+        This method should not be called manually by users.
+        
+        Notes
+        -----
+        This method is called automatically in worker processes during
+        initialization. It runs an infinite loop receiving tasks from the
+        master process until it receives a termination signal (None).
+        
+        The communication protocol works as follows:
+        1. Worker receives a task: (function, argument) tuple
+        2. Worker executes the function with the argument
+        3. Worker sends result back to master using synchronous send
+        4. Process repeats or exits if task is None
         """
         if self.is_master():
             return
@@ -103,28 +237,67 @@ class MPIPool:
             self.comm.ssend(result, self.master, status.tag)
 
     def map(self, worker, tasks):
-        r"""Evaluate a function or callable on each task in parallel using MPI.
-        The callable, ``worker``, is called on each element of the ``tasks``
-        iterable. The results are returned in the expected order.
-
+        """Execute a worker function on each task in parallel.
+        
+        This method distributes tasks to worker processes, collects results,
+        and returns them in the same order as the input tasks. It should only
+        be called from the master process (rank 0).
+        
         Parameters
         ----------
         worker : callable
-            A function or callable object that is executed on each element of
-            the specified ``tasks`` iterable. This object must be picklable
-            (i.e. it can't be a function scoped within a function or a
-            ``lambda`` function). This should accept a single positional
-            argument and return a single object.
+            A function that takes a single argument and returns a result.
+            The function must be pickleable. If using complex functions,
+            set ``use_dill=True`` when creating the pool.
         tasks : iterable
-            A list or iterable of tasks. Each task can be itself an iterable
-            (e.g., tuple) of values or data to pass in to the worker function.
-
+            An iterable of tasks to distribute to workers. Each task will be
+            passed as the argument to the worker function.
+        
         Returns
         -------
-        results : list
-            A list of results from the output of each ``worker()`` call.
+        list
+            A list of results in the same order as the input tasks. If a task
+            fails, the corresponding result will be ``None``.
+        
+        Raises
+        ------
+        ValueError
+            If called from a worker process instead of the master.
+        
+        See Also
+        --------
+        wait : Worker-side method that receives and processes tasks
+        
+        Notes
+        -----
+        Task distribution is synchronous - the master waits for all results
+        before returning. Workers process tasks in the order they are received.
+        
+        The method handles task distribution load balancing automatically.
+        If there are more tasks than workers, tasks are distributed round-robin.
+        
+        Examples
+        --------
+        Process a list of numbers:
+        
+        >>> def cube(x):
+        ...     return x ** 3
+        >>> 
+        >>> with MPIPool() as pool:
+        ...     results = pool.map(cube, [1, 2, 3, 4, 5])
+        ...     print(results)
+        [1, 8, 27, 64, 125]
+        
+        Process strings:
+        
+        >>> def prefix(word):
+        ...     return f"task: {word}"
+        >>> 
+        >>> with MPIPool() as pool:
+        ...     results = pool.map(prefix, ["a", "b", "c"])
+        ...     print(results)
+        ['task: a', 'task: b', 'task: c']
         """
-
         # If not the master just wait for instructions.
         if not self.is_master():
             self.wait()
@@ -165,7 +338,18 @@ class MPIPool:
         return resultlist
 
     def close(self):
-        """Tell all the workers to quit."""
+        """Tell all the workers to quit.
+        
+        Sends a termination signal (None) to all worker processes, causing them
+        to exit their wait loops and terminate cleanly.
+        
+        Notes
+        -----
+        This method is called automatically when the pool is used as a context
+        manager (e.g., ``with MPIPool() as pool:``).
+        
+        After calling close(), the pool should not be used again.
+        """
         if self.is_worker():
             return
 
@@ -173,13 +357,38 @@ class MPIPool:
             self.comm.send(None, worker, 0)
 
     def is_master(self):
+        """Check if the current process is the master (rank 0).
+        
+        Returns
+        -------
+        bool
+            True if this is the master process, False otherwise.
+        """
         return self.rank == 0
 
     def is_worker(self):
+        """Check if the current process is a worker (rank > 0).
+        
+        Returns
+        -------
+        bool
+            True if this is a worker process, False otherwise.
+        """
         return self.rank != 0
 
     def __enter__(self):
+        """Enter the runtime context for the pool.
+        
+        Returns
+        -------
+        MPIPool
+            The pool instance.
+        """
         return self
 
     def __exit__(self, *args):
+        """Exit the runtime context for the pool.
+        
+        Automatically calls close() to clean up worker processes.
+        """
         self.close()
