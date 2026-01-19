@@ -30,8 +30,8 @@ class TestImportFunctionality:
             MPI = _import_mpi(use_dill=True)
             assert MPI is not None
             # Verify dill was configured
-            env["dill"].dumps.assert_called
-            env["dill"].loads.assert_called
+            env["dill"].dumps.assert_called()
+            env["dill"].loads.assert_called()
 
     def test_import_dill_missing(self):
         """Test behavior when using dill but it's not available."""

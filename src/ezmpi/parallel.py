@@ -75,20 +75,20 @@ def _import_mpi(use_dill=False):
 
     try:
         from mpi4py import MPI as _MPI
-    except ImportError:
+    except ImportError as err:
         raise ImportError(
             "mpi4py is required but not installed. Please install it with: pip install mpi4py"
-        )
+        ) from err
 
     if use_dill:
         try:
             import dill
 
             _MPI.pickle.__init__(dill.dumps, dill.loads, dill.HIGHEST_PROTOCOL)
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "dill is required when use_dill=True but not installed. Please install it with: pip install dill"
-            )
+            ) from err
 
     MPI = _MPI
     return MPI

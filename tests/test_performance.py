@@ -1,7 +1,6 @@
 """Performance smoke tests for EZMPI."""
 
 import time
-from typing import List
 
 import pytest
 
@@ -9,7 +8,7 @@ import pytest
 def heavy_computation(x):
     """CPU-bound computation for performance testing."""
     result = 0
-    for i in range(10000):
+    for _i in range(10000):
         result += sum(j * j for j in range(x + 1))
     return result
 
@@ -33,9 +32,9 @@ def test_performance_single_vs_parallel():
                 assert results == expected
 
                 # Should complete in reasonable time
-                assert (
-                    parallel_time < 5.0
-                ), f"Parallel execution too slow: {parallel_time:.2f}s"
+                assert parallel_time < 5.0, (
+                    f"Parallel execution too slow: {parallel_time:.2f}s"
+                )
                 print(
                     f"Performance: {len(tasks)} tasks completed in {parallel_time:.2f}s"
                 )
@@ -81,9 +80,9 @@ def test_performance_communication_overhead():
                 assert results == [x * 2 for x in tasks]
 
                 # Should complete quickly
-                assert (
-                    duration < 2.0
-                ), f"Communication overhead too high: {duration:.2f}s"
+                assert duration < 2.0, (
+                    f"Communication overhead too high: {duration:.2f}s"
+                )
                 print(f"Performance: {len(tasks)} lightweight tasks in {duration:.2f}s")
 
 

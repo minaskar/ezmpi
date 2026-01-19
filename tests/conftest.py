@@ -1,13 +1,9 @@
 """Pytest configuration for EZMPI test suite."""
 
-import os
-import sys
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 # Import our mock factory
-from .mpi_mocks import MockMPIEnvironment, clear_ezmpi_modules
+from .mpi_mocks import MockMPIEnvironment
 
 
 def pytest_configure(config):
@@ -27,9 +23,9 @@ def pytest_collection_modifyitems(config, items):
     skip_no_dill = pytest.mark.skip(reason="dill not available")
 
     try:
-        import dill
+        import importlib
 
-        dill_available = True
+        dill_available = importlib.util.find_spec("dill") is not None
     except ImportError:
         dill_available = False
 
