@@ -2,8 +2,9 @@
 
 import os
 import sys
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Import our mock factory
 from .mpi_mocks import MockMPIEnvironment, clear_ezmpi_modules

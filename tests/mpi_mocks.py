@@ -4,9 +4,9 @@ This module provides factories to create complete mock MPI environments
 that mimic real mpi4py behavior for unit testing without requiring MPI.
 """
 
-from unittest.mock import MagicMock
-from types import ModuleType
 import sys
+from types import ModuleType
+from unittest.mock import MagicMock
 
 
 def create_mpi_communicator(rank=0, size=4):

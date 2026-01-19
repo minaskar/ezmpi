@@ -1,8 +1,10 @@
 """Fixed unit tests for EZMPI using proper module-level mocking."""
 
 import sys
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
+
 from .mpi_mocks import MockMPIEnvironment
 
 pytestmark = pytest.mark.unit

@@ -33,8 +33,8 @@ This implementation was adapted from similar MPI pool implementations in the
 scientific Python community.
 """
 
-import sys
 import atexit
+import sys
 
 MPI = None
 

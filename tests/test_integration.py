@@ -1,6 +1,7 @@
 """Integration tests for EZMPI with real MPI execution."""
 
 import sys
+
 import pytest
 
 pytestmark = pytest.mark.integration
@@ -29,8 +30,9 @@ def complex_computation(x):
 )
 def test_integration_basic_map():
     """Test basic parallel mapping with real MPI."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -49,8 +51,9 @@ def test_integration_basic_map():
 )
 def test_integration_multiple_workers():
     """Test with multiple workers."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -73,8 +76,9 @@ def test_integration_multiple_workers():
 )
 def test_integration_result_ordering():
     """Test that results maintain correct order."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -93,8 +97,9 @@ def test_integration_result_ordering():
 )
 def test_integration_empty_tasks():
     """Test map with empty task list."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -112,8 +117,9 @@ def test_integration_empty_tasks():
 )
 def test_integration_single_task():
     """Test with single task."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -132,8 +138,9 @@ def test_integration_single_task():
 )
 def test_integration_many_tasks():
     """Test with more tasks than workers."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -152,8 +159,9 @@ def test_integration_many_tasks():
 )
 def test_integration_cpu_bound_tasks():
     """Test with CPU-bound computations."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -172,8 +180,9 @@ def test_integration_cpu_bound_tasks():
 )
 def test_integration_context_manager():
     """Test context manager usage."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -196,8 +205,9 @@ def test_integration_context_manager():
 )
 def test_integration_process_roles():
     """Test that master/worker roles are correctly assigned."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -218,8 +228,9 @@ def test_integration_process_roles():
 )
 def test_integration_different_task_sizes():
     """Test with varying task sizes."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
@@ -239,8 +250,9 @@ def test_integration_different_task_sizes():
 )
 def test_integration_complex_objects():
     """Test with complex objects."""
-    from ezmpi import MPIPool
     from mpi4py import MPI
+
+    from ezmpi import MPIPool
 
     pool = MPIPool(test_mode=True)
 
