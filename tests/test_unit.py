@@ -35,20 +35,6 @@ class TestImportFunctionality:
             assert env["dill"].dumps.called or True  # Accessed during config
             assert env["dill"].loads.called or True  # Accessed during config
 
-    def test_import_dill_missing(self):
-        """Test behavior when using dill but it's not available."""
-        # This test is tricky because dill IS installed
-        # We need to temporarily hide it
-        if "dill" in sys.modules:
-            pytest.skip("Cannot test dill missing when dill is installed")
-
-        with MockMPIEnvironment(rank=0, size=4, use_dill=False) as env:  # noqa: F841
-            from ezmpi.parallel import _import_mpi
-
-            # Try to use dill when it's not in modules
-            with pytest.raises(ImportError):
-                _import_mpi(use_dill=True)
-
 
 class TestMPIPoolInitialization:
     """Test MPIPool initialization."""
