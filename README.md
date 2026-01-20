@@ -10,6 +10,10 @@ A simple MPI-based processing pool for Python that distributes tasks across mult
 - Context manager support for automatic cleanup
 - Lightweight and easy to integrate into existing projects
 
+## Documentation
+
+Full documentation is available at: https://ezmpi.readthedocs.io/
+
 ## Requirements
 
 - Python 3.8+
