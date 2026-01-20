@@ -9,7 +9,7 @@ description = "A simple MPI processing pool for Python"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Minas Keshishyan", email = "minas@example.com"}
+    {name = "Minas Karamanis", email = "minaskar@gmail.com"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
