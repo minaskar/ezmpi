@@ -1,4 +1,4 @@
-# EZMPI
+# ezMPI
 
 A simple MPI-based processing pool for Python that distributes tasks across multiple processes using MPI (Message Passing Interface).
 
@@ -76,7 +76,7 @@ with MPIPool(use_dill=True) as pool:
 
 ## MPI Execution
 
-EZMPI requires at least 2 MPI processes (1 master + 1+ workers):
+ezMPI requires at least 2 MPI processes (1 master + 1+ workers):
 
 ```bash
 # Minimum: 2 processes
@@ -146,14 +146,6 @@ mypy src/ezmpi
 # Import sorting
 isort src/
 ```
-
-## Examples
-
-See the `examples/` directory for complete examples:
-
-- `basic_map.py`: Simple parallel mapping
-- `complex_objects.py`: Using dill with complex data structures
-- `monte_carlo.py`: Parallel Monte Carlo simulation
 
 ## License
 

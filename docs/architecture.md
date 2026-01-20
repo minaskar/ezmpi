@@ -1,10 +1,10 @@
-# EZMPI Architecture
+# ezMPI Architecture
 
-This document describes the technical architecture and design decisions behind EZMPI.
+This document describes the technical architecture and design decisions behind ezMPI.
 
 ## Design Philosophy
 
-EZMPI follows a simple master-worker pattern designed for ease of use and reliability. The primary goals are:
+ezMPI follows a simple master-worker pattern designed for ease of use and reliability. The primary goals are:
 
 - **Simplicity**: Easy to understand and use API
 - **Reliability**: Robust error handling and cleanup
@@ -89,11 +89,11 @@ def map(self, worker, tasks):
 
 ### Default: Standard Pickle
 
-By default, EZMPI uses Python's standard `pickle` module for serialization, which works well for most basic Python objects.
+By default, ezMPI uses Python's standard `pickle` module for serialization, which works well for most basic Python objects.
 
 ### Optional: Dill Support
 
-For complex objects (lambdas, closures, class instances), EZMPI supports `dill`:
+For complex objects (lambdas, closures, class instances), ezMPI supports `dill`:
 
 ```python
 # Enable dill serialization
@@ -117,7 +117,7 @@ Dill provides more comprehensive object serialization than standard pickle.
 
 ## Testing Strategy
 
-EZMPI uses a comprehensive testing approach:
+ezMPI uses a comprehensive testing approach:
 
 ### Unit Tests (`tests/test_unit.py`)
 - Mock MPI environment using `unittest.mock`
@@ -146,7 +146,7 @@ Task size vs communication overhead trade-offs:
 
 ### Load Balancing
 
-EZMPI relies on MPI's built-in load balancing:
+ezMPI relies on MPI's built-in load balancing:
 - Workers pull tasks as they become available
 - No explicit load balancing code needed
 - Works well for homogeneous tasks
@@ -169,7 +169,7 @@ Potential enhancements for future versions:
 
 ## Compatibility
 
-EZMPI is compatible with:
+ezMPI is compatible with:
 - **Python**: 3.8, 3.10, 3.12+
 - **MPI**: OpenMPI, MPICH, MS-MPI
 - **OS**: Linux, macOS, Windows (with MPI)

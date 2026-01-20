@@ -1,4 +1,4 @@
-# EZMPI Documentation
+# ezMPI Documentation
 
 **A simple MPI processing pool for Python**
 
@@ -6,13 +6,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/pypi/pyversions/ezmpi.svg)](https://pypi.org/project/ezmpi/)
 
-## What is EZMPI?
+## What is ezMPI?
 
-EZMPI is a simple, easy-to-use MPI processing pool for Python that helps you parallelize computationally intensive tasks across multiple processes. It follows a master-worker pattern where the master process distributes tasks to workers, which execute them in parallel and return results.
+ezMPI is a simple, easy-to-use MPI processing pool for Python that helps you parallelize computationally intensive tasks across multiple processes. It follows a master-worker pattern where the master process distributes tasks to workers, which execute them in parallel and return results.
 
 ## Quick Start
 
-Install EZMPI:
+Install ezMPI:
 
 ```bash
 pip install ezmpi
@@ -46,7 +46,7 @@ with MPIPool() as pool:
 - **[Getting Started](getting-started.md)**: Installation and basic usage
 - **[API Reference](api.md)**: Complete API documentation
 - **[Architecture](architecture.md)**: Design decisions and implementation details
-- **[Contributing](contributing.md)**: How to contribute to EZMPI
+- **[Contributing](contributing.md)**: How to contribute to ezMPI
 - **[Changelog](changelog.md)**: Version history and changes
 
 ## Installation
@@ -75,7 +75,7 @@ pip install -e ".[dev,test,docs]"
 
 ## Running with MPI
 
-EZMPI requires at least 2 MPI processes (1 master + 1 worker):
+ezMPI requires at least 2 MPI processes (1 master + 1 worker):
 
 ```bash
 # Minimum: 2 processes
@@ -164,7 +164,7 @@ We welcome contributions! Please see our [Contributing Guide](contributing.md) f
 
 ## License
 
-EZMPI is licensed under the MIT License. See the [LICENSE](https://github.com/minaskar/ezmpi/blob/main/LICENSE) file for details.
+ezMPI is licensed under the MIT License. See the [LICENSE](https://github.com/minaskar/ezmpi/blob/main/LICENSE) file for details.
 
 ## Support
 
@@ -174,17 +174,17 @@ EZMPI is licensed under the MIT License. See the [LICENSE](https://github.com/mi
 
 ## Citation
 
-If you use EZMPI in your research, please cite:
+If you use ezMPI in your research, please cite:
 
 ```bibtex
 @software{ezmpi,
-  title = {EZMPI: A simple MPI processing pool for Python},
-  author = {Keshishyan, Minas},
+  title = {ezMPI: A simple MPI processing pool for Python},
+  author = {Karamanis, Minas},
   url = {https://github.com/minaskar/ezmpi},
-  year = {2025}
+  year = {2026}
 }
 ```
 
 ---
 
-**Enjoy using EZMPI!** 🚀
+**Enjoy using ezMPI!** 🚀

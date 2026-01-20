@@ -1,6 +1,6 @@
-# Getting Started with EZMPI
+# Getting Started with ezMPI
 
-EZMPI is a simple and efficient MPI processing pool for Python that helps you parallelize computationally intensive tasks across multiple processes.
+ezMPI is a simple and efficient MPI processing pool for Python that helps you parallelize computationally intensive tasks across multiple processes.
 
 ## Installation
 
@@ -152,7 +152,7 @@ pip install mpi4py
 
 ### Only one MPI process available
 
-EZMPI requires at least 2 MPI processes:
+ezMPI requires at least 2 MPI processes:
 ```bash
 # Wrong: Only 1 process
 mpiexec -n 1 python script.py
@@ -172,7 +172,7 @@ mpiexec -n 2 python script.py
 
 - [API Reference](api.md) - Complete API documentation
 - [Architecture](architecture.md) - Technical implementation details
-- [Contributing](contributing.md) - How to contribute to EZMPI
+- [Contributing](contributing.md) - How to contribute to ezMPI
 
 ## Need Help?
 
