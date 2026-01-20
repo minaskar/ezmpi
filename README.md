@@ -18,6 +18,12 @@ A simple MPI-based processing pool for Python that distributes tasks across mult
 
 ## Installation
 
+### Install from PyPI
+
+```bash
+pip install ezmpi
+```
+
 ### Install from source
 
 ```bash
