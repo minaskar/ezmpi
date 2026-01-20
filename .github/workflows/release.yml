@@ -35,7 +35,7 @@ jobs:
         run: |
           pytest tests/test_unit.py -v --cov=ezmpi
           mpiexec --oversubscribe -n 4 pytest --with-mpi tests/test_integration.py -v
-          pytest tests/test_performance.py -v
+          mpiexec --oversubscribe -n 4 pytest --with-mpi tests/test_performance.py -v
       
       - name: Check package build
         run: |
